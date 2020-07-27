@@ -11,8 +11,7 @@ import Html.Keyed exposing (ul)
 
 main : Program () Model Msg
 main =
-  Browser.sandbox { init = init, update = update, view = view }
-
+  Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
 -- MODEL
@@ -90,13 +89,16 @@ addResult result model =
 initialUI : UI
 initialUI = UI "" "" "" ""
 
-init : Model
-init =
-  {
-    ui = initialUI,
-    results = [],
-    nextResult = 0
-  }
+init : () -> (Model, Cmd Msg)
+init _ =
+  (
+    {
+      ui = initialUI,
+      results = [],
+      nextResult = 0
+    },
+    Cmd.none
+  )
 
 intValue : String -> Int
 intValue s = String.toInt s |> Maybe.withDefault 0
@@ -203,20 +205,24 @@ intFieldFilter s = String.filter Char.isDigit s
 --intsFieldFilter : String -> String
 --intsFieldFilter s = String.filter (\c -> Char.isDigit c || c == ' ') s
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    ChangeSum newContent ->
-      modifyUI (setSumField <| intFieldFilter newContent) model
-    ChangeNumCells newContent ->
-      modifyUI (setNumCellsField <| intFieldFilter newContent) model
-    ChangeRequiredDigits newContent ->
-      modifyUI (setRequiredDigitsField <| digitsFieldFilter newContent) model
-    ChangeForbiddenDigits newContent ->
-      modifyUI (setForbiddenDigitsField <| digitsFieldFilter newContent) model
-    Compute -> addResult (computeResult model.ui) model
-    ClearUI -> { model | ui = initialUI }
-    ToggleSolution num sol -> modifyResults (toggleResultSolution num sol) model
+  (
+    case msg of
+      ChangeSum newContent ->
+        modifyUI (setSumField <| intFieldFilter newContent) model
+      ChangeNumCells newContent ->
+        modifyUI (setNumCellsField <| intFieldFilter newContent) model
+      ChangeRequiredDigits newContent ->
+        modifyUI (setRequiredDigitsField <| digitsFieldFilter newContent) model
+      ChangeForbiddenDigits newContent ->
+        modifyUI (setForbiddenDigitsField <| digitsFieldFilter newContent) model
+      Compute -> addResult (computeResult model.ui) model
+      ClearUI -> { model | ui = initialUI }
+      ToggleSolution num sol -> modifyResults (toggleResultSolution num sol) model,
+    Cmd.none
+  )
+
 
 -- VIEW
 
@@ -274,3 +280,7 @@ view model =
       lazy viewUI model.ui,
       lazy viewResults model.results
     ]
+
+-- Subscriptions
+subscriptions : Model -> Sub Msg
+subscriptions _ = Sub.none
