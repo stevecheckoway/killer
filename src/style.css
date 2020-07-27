@@ -1,0 +1,17 @@
+span.active {
+  border: 1px solid black;
+  color: black;
+  padding: .25em;
+  margin-left: .5em
+}
+
+span.inactive {
+  border: thin solid darkgray;
+  color: gray;
+  padding: .25em;
+  margin-left: .5em
+}
+
+ul#results > li {
+  margin-top: 1em
+}
